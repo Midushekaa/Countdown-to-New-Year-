@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>New Year Countdown</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: url('time.jpg') no-repeat center center/cover;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .countdown {
+      display: flex;
+      gap: 1rem;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .countdown div {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 1rem;
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .swipe-container {
+      margin-top: 3rem;
+      position: relative;
+      width: 300px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 30px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .swipe-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ccc;
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .swipe-thumb {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: 50px;
+      height: 50px;
+      background: white;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      background: white;
+      color: black;
+      padding: 1rem 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      display: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Countdown to New Year 🎉</h1>
+  <div class="countdown">
+    <div><span id="days">00</span><br>Days</div>
+    <div><span id="hours">00</span><br>Hours</div>
+    <div><span id="minutes">00</span><br>Minutes</div>
+    <div><span id="seconds">00</span><br>Seconds</div>
+  </div>
+
+  <div class="swipe-container" id="swipe">
+    <div class="swipe-text">Swipe to Unlock</div>
+    <div class="swipe-thumb" id="thumb"></div>
+  </div>
+
+  <div class="notification" id="notify">🎊 Happy New Year! 🎊</div>
+
+  <script>
+    // Countdown Logic
+    const targetDate = new Date(`Jan 1, ${new Date().getFullYear() + 1} 00:00:00`).getTime();
+    const notify = document.getElementById('notify');
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        notify.style.display = 'block';
+        document.getElementById('days').textContent = "00";
+        document.getElementById('hours').textContent = "00";
+        document.getElementById('minutes').textContent = "00";
+        document.getElementById('seconds').textContent = "00";
+        clearInterval(timer);
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      document.getElementById('days').textContent = String(days).padStart(2, '0');
+      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Swipe to Unlock Logic
+    const thumb = document.getElementById("thumb");
+    const swipeContainer = document.getElementById("swipe");
+    let isDragging = false;
+    let startX = 0;
+
+    swipeContainer.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      startX = e.clientX;
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      thumb.style.left = "5px";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      let moveX = e.clientX - startX;
+      moveX = Math.max(0, Math.min(moveX, swipeContainer.offsetWidth - thumb.offsetWidth - 5));
+      thumb.style.left = `${moveX}px`;
+
+      if (moveX >= swipeContainer.offsetWidth - thumb.offsetWidth - 5) {
+        swipeContainer.querySelector(".swipe-text").textContent = "Unlocked ✅";
+        thumb.style.background = "#00c853";
+        isDragging = false;
+      }
+    });
+  </script>
+</body>
+</html>
